@@ -26,7 +26,7 @@ def main():
         if release.get("draft"):
             continue
         tag = release.get("tag_name", "")
-        match = re.fullmatch(r"v?(\\d+\\.\\d+)-b(\\d+)", tag)
+        match = re.fullmatch(r"v?(\d+\.\d+)-b(\d+)", tag)
         if not match:
             continue
         version, build = match.groups()
