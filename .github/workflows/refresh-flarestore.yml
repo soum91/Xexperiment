@@ -1,0 +1,39 @@
+name: Refresh FlareStore feed
+
+on:
+  release:
+    types: [published, edited, released]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xexperiment-flarestore-feed
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Regenerate source from real release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/update_repo.py
+      - name: Commit source changes, if any
+        run: |
+          if git diff --quiet -- repo.json; then
+            echo "No change to release assets or feed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repo.json
+          git commit -m "chore: refresh FlareStore feed from release assets"
+          git push origin HEAD:main

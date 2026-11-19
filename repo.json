@@ -1,0 +1,8 @@
+{
+  "name": "Xexperiment",
+  "identifier": "com.soum91.xexperiment.source",
+  "subtitle": "Experimental X IPA releases",
+  "description": "Experimental sideloaded X build feed. Apps appear only after their actual IPA is attached to a published GitHub release; on-device functionality is not guaranteed.",
+  "sourceURL": "https://raw.githubusercontent.com/soum91/Xexperiment/main/repo.json",
+  "apps": []
+}
