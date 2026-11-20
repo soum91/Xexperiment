@@ -1,0 +1,72 @@
+name: Build and publish patched X 12.44 IPA
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xexperiment-ipa-publish
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ github.event.release.tag_name == 'source-12.44' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download user's original X 12.44 IPA from source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p incoming
+          gh release download source-12.44 --repo "$GITHUB_REPOSITORY" --pattern '*.ipa' --dir incoming
+          count="$(find incoming -maxdepth 1 -type f -iname '*.ipa' | wc -l)"
+          if [ "$count" -ne 1 ]; then
+            echo "Expected exactly one source IPA asset; found $count"
+            exit 1
+          fi
+          mv incoming/*.ipa source.ipa
+      - name: Download compiled web-login components
+        run: |
+          curl --fail --location --retry 4 --retry-delay 4 --output components.ipa \
+            'https://github.com/NeoFreeBird/app/releases/download/v7.3.1/NeoFreeBird-sideloaded-X_7.3.1_12.39.ipa'
+          test -s components.ipa
+      - name: Patch, retain X 12.44, and verify IPA integrity
+        run: |
+          python3 scripts/rebuild_from_upload.py source.ipa components.ipa X_12.44_AdFiltered_WebLogin_Full.ipa
+      - name: Publish actual downloadable GitHub Release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view v12.44-b22 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create v12.44-b22 \
+              --repo "$GITHUB_REPOSITORY" --target main --prerelease \
+              --title 'X 12.44 experimental patched IPA' \
+              --notes 'Experimental unsigned package built from the user-supplied original X 12.44 IPA. Re-sign using FlareStore. Native web sign-in remains unverified on-device.'
+          fi
+          gh release upload v12.44-b22 \
+            X_12.44_AdFiltered_WebLogin_Full.ipa SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --clobber
+      - name: Regenerate FlareStore feed using uploaded asset URL
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sleep 5
+          python3 scripts/update_repo.py
+          if git diff --quiet -- repo.json; then
+            echo 'Feed unchanged'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add repo.json
+            git commit -m 'chore: publish verified X IPA in FlareStore source'
+            git push origin HEAD:main
+          fi

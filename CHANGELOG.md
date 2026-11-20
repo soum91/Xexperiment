@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased (2026-11-19)
-- Initialized the public Xexperiment distribution repository.
-- Added the root FlareStore `repo.json` feed and a verified-release-only indexing script.
-- Added a GitHub Actions workflow to refresh the feed after an IPA release is published.
-- The previously assembled X 12.44 patched IPA has **not** been uploaded to GitHub. Authentication has not been verified on-device.
+- Added automatic full-IPA reconstruction and release workflow.
+- Added script to rebuild an experimental X 12.44 IPA from the original user-provided IPA and compiled web-login components.
+- Source release tag `source-12.44` triggers `v12.44-b22` output release, ZIP verification, SHA256 checksum, and FlareStore feed refresh.
+- No patched IPA has yet been uploaded to GitHub Releases. Device authentication remains unverified.
+- Initialized the root FlareStore `repo.json` feed and release-only indexing script.

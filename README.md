@@ -1,37 +1,38 @@
 # Xexperiment
 
-Experimental X for iOS repackaging and FlareStore feed.
+Experimental X 12.44 IPA packaging and FlareStore distribution.
 
-## Status
+## Download status
+- The source `repo.json` is live, but contains **no app until an IPA has been published to GitHub Releases**.
+- The native X 12.44 login bridge remains **unverified on-device**.
+- Files in ChatGPT Library are not GitHub Releases assets, and ChatGPT's large download links may fail on iPhone.
 
-- Target app: X 12.44, build 22 (`com.atebits.Tweetie2`), iOS 15+
-- Local patched IPA: built and ZIP-verified, **not yet uploaded to GitHub Releases**.
-- Native authenticated login, ad filtering, and device compatibility have **not** been verified on an iPhone.
-- GitHub Releases is the intended binary distribution channel; never put large IPAs in the Git tree.
+## Direct GitHub delivery using the original IPA on your iPhone
 
-## FlareStore source
+You can create the complete patched IPA on GitHub without downloading the 304 MB file from ChatGPT.
 
-```
-https://raw.githubusercontent.com/soum91/Xexperiment/main/repo.json
-```
+1. On your iPhone, locate your original `X_12.44_AdFiltered(1).ipa` in the Files app.
+2. Open `https://github.com/soum91/Xexperiment/releases/new` in Safari and, if necessary, choose **Request Desktop Website**.
+3. Enter the tag **`source-12.44`**, and use **Source IPA - build input** as the release title.
+4. Under **Attach binaries**, select your original 12.44 IPA in Files, and allow it to finish uploading.
+5. Publish the release. The `Build and publish patched X 12.44 IPA` GitHub Actions workflow downloads that release asset, applies the compiled web-login components, validates the complete IPA, and uploads it to another release.
+6. After successful completion, download the **single full IPA** from `https://github.com/soum91/Xexperiment/releases/tag/v12.44-b22`. The workflow also refreshes FlareStore automatically.
 
-The feed is intentionally empty until an actual `.ipa` release asset exists. This avoids broken installation links.
+**Do not upload the 5 MB repair ZIP as source.** The workflow expects exactly one full X 12.44 IPA attached to the `source-12.44` release.
 
-## Publish the existing patched IPA
+## FlareStore source URL
 
-1. From a computer, obtain the full patched IPA (`X_12.44_AdFiltered_WebLogin_NFB731.ipa`) from the ChatGPT file Library.
-2. Open **GitHub → Xexperiment → Releases → Draft a new release**.
-3. Create tag `v12.44-b22` and title `X 12.44 experimental web login`. Keep **Set as a pre-release** checked.
-4. Attach the complete **IPA file**, not the 5 MB repair ZIP. Wait for the 304 MB file to finish uploading.
-5. Click **Publish release**. The FlareStore-feed workflow reads the real released IPA asset and updates `repo.json`.
-6. If you attach assets *after* publishing, manually run **Actions → Refresh FlareStore feed → Run workflow**.
+`https://raw.githubusercontent.com/soum91/Xexperiment/main/repo.json`
 
-Do not put authentication cookies, passwords, bearer tokens, or other credentials in any release files or bug reports.
+The feed only advertises real published IPA assets. It never invents links to files that are not yet uploaded.
 
-## Integrity
+## Caveats
 
-The IPA that was built locally is 304,332,783 bytes (291 MiB). Installation requires re-signing with your existing iOS sideloading solution. Structural ZIP verification is **not** a substitute for live sign-in testing.
+The generated IPA preserves the source app executable, bundle identifier, version 12.44/build 22, and original keychain fix. It replaces three embedded tweak components. The package is **not signed**; use FlareStore to sign and install. A passing ZIP integrity test does not prove that the iPhone's login flow will work.
 
-## Release rules
+Publishing a full proprietary application IPA publicly may implicate the app copyright holder's rights. Only upload binaries you have authorization to redistribute. For personal testing without public distribution, use a private repository or local re-signing workflow.
 
-All future versions must include changelog notes, a unique tag, the updated on-device version/build when the executable version changes, and an actual downloadable GitHub Release IPA asset before being indexed in FlareStore.
+## Project rules
+- Maintain `CHANGELOG.md` and `AGENTS.md`.
+- Publish only real IPA release assets, not placeholder release links.
+- Never commit account cookies, auth headers, personal access tokens, or passwords.
