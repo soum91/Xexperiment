@@ -17,3 +17,7 @@ Every published release must identify specific genuine changes since the precedi
 
 ## Universal diagnostic export contract
 All diagnostic and log report screens must provide Copy with actual clipboard read-back verification and visible success/failure feedback; native Share; native Save as plain-text .txt via Files picker (fileExporter or UIDocumentPickerViewController on iOS); and selectable full report text as fallback. Never provide silent clipboard-only controls. Include app and version/build, device and OS, and actionable error/return codes; redact tokens, cookies, passwords and other secrets. Verify cross-app paste, Share and Files export on a signed device; until then explicitly mark the functionality unverified.
+
+## Mandatory file picker / import policy (release-blocking)
+
+Every file picker, browser, import, export, signing or upload workflow in this repository **MUST** comply with [MANDATORY_FILE_PICKER.md](https://github.com/soum91/tweaks/blob/main/MANDATORY_FILE_PICKER.md). This covers future apps and all platforms. Files must be selectable with a real tap, return to the caller, copy safely to app-owned storage, complete the import and give visible success/error. Real-device end-to-end testing is required before claiming success. Merely opening Files or compiling is insufficient. Preserve existing project policies. Codex and Claude must propagate this rule to new app repositories.
